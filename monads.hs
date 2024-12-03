@@ -6,7 +6,7 @@ runState :: (MyState s a) -> (s -> (a,s))
 runState (MyState f) = f
 
 put :: a -> MyState a ()
-put a = MyState (const ((), a))
+put a = MyState (\s -> ((), a))
 
 get :: MyState s s
 get = MyState (\s -> (s, s))
@@ -21,8 +21,10 @@ instance Applicative (MyState s) where
                                 in (f x, s2))
 
 instance Monad (MyState s) where
+    (>>=) :: MyState s a -> (a -> MyState s b) -> MyState s b
     f >>= g =
         MyState (\s -> let (x, s') = runState f s in runState (g x) s')
+    return :: a -> MyState s a
     return = pure
 
 -- Takes a number from state
